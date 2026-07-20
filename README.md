@@ -22,6 +22,7 @@ Detailed technical write-ups (PDF, English):
 - [CI/CD Pipeline](docs/01-cicd-pipeline.pdf) — every pipeline stage, secrets, and the real troubleshooting story
 - [The Python Application](docs/02-python-application.pdf) — endpoints, client-IP resolution, geolocation, metrics
 - [The Helm Chart](docs/03-helm-chart.pdf) — values, security hardening, and the GeoLite2 init container
+- [The Grafana Dashboard](docs/04-grafana-dashboard.pdf) — the panels, the Infinity datasource, and how it is provisioned as code
 
 ## App
 
