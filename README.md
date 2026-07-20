@@ -14,6 +14,24 @@ Built as a DevOps practice lab for interviews.
 
 ![Runtime infrastructure](docs/infra.png)
 
+## Try it live
+
+The app and its dashboard are running publicly. Hit the endpoint and watch yourself show up on the map:
+
+```bash
+# your public IP, as plain text
+curl https://devops-lab.pereyra.ar/myip
+
+# full JSON: IP + country + city + coordinates
+curl https://devops-lab.pereyra.ar/
+```
+
+Every request is geolocated (from `CF-Connecting-IP` + GeoLite2) and appears **automatically** on the live dashboard within ~10 seconds — a new marker on the world map and a row in the IP log. Hover a marker to see the IP behind it.
+
+**Dashboard → https://devops-lab-grafana.pereyra.ar**
+
+![Grafana dashboard](docs/dashboard.png)
+
 ## Documentation
 
 Detailed technical write-ups (PDF, English):
