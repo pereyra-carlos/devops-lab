@@ -64,9 +64,9 @@
           "refId": "A",
           "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
           "type": "json", "source": "url", "format": "table",
-          "url": "https://api.github.com/repos/pereyra-carlos/devops-lab/actions/runs?per_page=5",
+          "url": "http://ipecho/ci",
           "url_options": { "method": "GET" },
-          "root_selector": "workflow_runs",
+          "root_selector": "",
           "columns": [
             { "selector": "run_number", "text": "run", "type": "number" },
             { "selector": "head_branch", "text": "branch", "type": "string" },

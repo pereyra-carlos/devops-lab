@@ -1,6 +1,8 @@
+import json
 import os
 import threading
 import time
+import urllib.request
 from collections import Counter, deque
 
 from fastapi import FastAPI, Request, Response
@@ -12,13 +14,20 @@ try:
 except ImportError:
     geoip2 = None
 
-app = FastAPI(title="ipecho", version="0.5.0")
+app = FastAPI(title="ipecho", version="0.5.1")
 
 BUILD_INFO = {
-    "version": os.getenv("APP_VERSION", "0.5.0"),
+    "version": os.getenv("APP_VERSION", "0.5.1"),
     "git_sha": os.getenv("GIT_SHA", "dev"),
     "build_time": os.getenv("BUILD_TIME", "unknown"),
 }
+
+GH_RUNS_URL = os.getenv(
+    "GH_RUNS_URL",
+    "https://api.github.com/repos/pereyra-carlos/devops-lab/actions/runs?per_page=5",
+)
+CI_CACHE_TTL = 300
+_ci_cache = {"data": [], "ts": 0}
 
 _lock = threading.Lock()
 _locations = {}
@@ -95,6 +104,26 @@ def record(ip: str, country: str, city, lat, lon) -> None:
     requests_total.labels(country=country).inc()
 
 
+def _fetch_ci_runs():
+    req = urllib.request.Request(
+        GH_RUNS_URL, headers={"User-Agent": "ipecho", "Accept": "application/vnd.github+json"}
+    )
+    with urllib.request.urlopen(req, timeout=6) as r:
+        data = json.loads(r.read())
+    return [
+        {
+            "run_number": run.get("run_number"),
+            "head_branch": run.get("head_branch"),
+            "event": run.get("event"),
+            "status": run.get("status"),
+            "conclusion": run.get("conclusion"),
+            "created_at": run.get("created_at"),
+            "html_url": run.get("html_url"),
+        }
+        for run in data.get("workflow_runs", [])
+    ]
+
+
 @app.get("/")
 async def root(request: Request):
     ip = client_ip(request)
@@ -150,6 +179,18 @@ async def stats():
 async def log():
     with _lock:
         return list(_recent)
+
+
+@app.get("/ci")
+def ci():
+    now = int(time.time())
+    if now - _ci_cache["ts"] > CI_CACHE_TTL:
+        try:
+            _ci_cache["data"] = _fetch_ci_runs()
+            _ci_cache["ts"] = now
+        except Exception:
+            pass
+    return _ci_cache["data"]
 
 
 @app.get("/metrics")

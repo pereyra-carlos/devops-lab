@@ -15,6 +15,7 @@ def setup_function():
     main._country_counts.clear()
     main._recent.clear()
     main._locations.clear()
+    main._ci_cache.update({"data": [], "ts": 0})
 
 
 def test_root_returns_ip():
@@ -92,6 +93,13 @@ def test_log_keeps_recent():
     client.get("/", headers={"X-Forwarded-For": "203.0.113.1"})
     entries = client.get("/log").json()
     assert entries[0]["ip"] == "203.0.113.1"
+
+
+def test_ci_returns_cached_runs():
+    main._ci_cache.update({"data": [{"run_number": 1, "conclusion": "success"}], "ts": 9_999_999_999})
+    resp = client.get("/ci")
+    assert resp.status_code == 200
+    assert resp.json()[0]["conclusion"] == "success"
 
 
 def test_metrics_exposes_counter():
