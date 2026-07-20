@@ -4,6 +4,16 @@ Web app mínima que devuelve la **IP de origen del cliente**, con un pipeline CI
 
 Pensado como lab de práctica DevOps para entrevistas.
 
+## Arquitectura
+
+### Pipeline CI/CD
+
+![Pipeline CI/CD](docs/pipe.png)
+
+### Infraestructura runtime
+
+![Infraestructura runtime](docs/infra.png)
+
 ## Documentation
 
 Detailed technical write-ups (PDF, English):
