@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ipecho
+description: Web app that returns the client's originating IP address
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,0 +1,26 @@
+replicaCount: 1
+
+image:
+  repository: sauay/ipecho
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: devops-lab.pereyra.ar
+      paths:
+        - path: /
+          pathType: Prefix
+
+env:
+  - name: HOSTNAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+
+geoip:
+  enabled: true
+  edition: GeoLite2-City
+  dbPath: /data/GeoLite2-City.mmdb
+  licenseSecret: ipecho-geoip

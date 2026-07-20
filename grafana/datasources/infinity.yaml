@@ -1,0 +1,9 @@
+apiVersion: 1
+datasources:
+  - name: ipecho-json
+    uid: ipecho-json
+    type: yesoreyeram-infinity-datasource
+    access: proxy
+    isDefault: true
+    editable: true
+    jsonData: {}

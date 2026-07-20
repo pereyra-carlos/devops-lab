@@ -1,0 +1,17 @@
+.git
+.github
+charts
+*.md
+Makefile
+**/__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.venv
+venv
+app/test_*.py
+app/requirements-dev.txt
+sbom.cyclonedx.json
+image.tar
+app/data
+*.mmdb

@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  IMAGE: ipecho
+  REGISTRY_IMAGE: sauay/ipecho
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r app/requirements.txt -r app/requirements-dev.txt
+      - name: Lint
+        run: ruff check app
+      - name: Unit tests
+        working-directory: app
+        run: pytest -q
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t $IMAGE:${{ github.sha }} .
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          format: table
+          exit-code: "1"
+          severity: CRITICAL
+          ignore-unfixed: true
+      - name: Generate SBOM
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          format: cyclonedx
+          output: sbom.cyclonedx.json
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cyclonedx.json
+      - name: Save image for downstream jobs
+        run: docker save $IMAGE:${{ github.sha }} -o image.tar
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image
+          path: image.tar
+      - name: Push to Docker Hub
+        if: github.event_name == 'push'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          docker tag $IMAGE:${{ github.sha }} $REGISTRY_IMAGE:${{ github.sha }}
+          docker tag $IMAGE:${{ github.sha }} $REGISTRY_IMAGE:latest
+          docker push $REGISTRY_IMAGE:${{ github.sha }}
+          docker push $REGISTRY_IMAGE:latest
+
+  helm-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - run: helm lint charts/ipecho
+
+  deploy-smoke:
+    needs: [build, helm-lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: image
+      - uses: helm/kind-action@v1
+        with:
+          cluster_name: ci
+      - name: Load image into kind
+        run: kind load image-archive image.tar --name ci
+      - uses: azure/setup-helm@v4
+      - name: Deploy to staging
+        run: |
+          helm upgrade --install ipecho charts/ipecho \
+            --namespace staging --create-namespace \
+            --set image.repository=$IMAGE \
+            --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=Never \
+            --wait --timeout 120s
+      - name: Smoke test
+        run: |
+          kubectl -n staging port-forward svc/ipecho 8080:80 &
+          sleep 5
+          curl -f http://127.0.0.1:8080/health
+          curl -f http://127.0.0.1:8080/ready
+          curl -s http://127.0.0.1:8080/ | tee /dev/stderr
+
+  notify:
+    needs: [test, build, helm-lint, deploy-smoke]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report result
+        run: |
+          echo "test=${{ needs.test.result }} build=${{ needs.build.result }} helm-lint=${{ needs.helm-lint.result }} deploy-smoke=${{ needs.deploy-smoke.result }}"
+      - name: Slack notification
+        if: ${{ always() && vars.SLACK_ENABLED == 'true' }}
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {"text": "ipecho CI on ${{ github.ref_name }} @ ${{ github.sha }} -> deploy-smoke: ${{ needs.deploy-smoke.result }}"}

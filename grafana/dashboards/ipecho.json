@@ -1,0 +1,168 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total requests",
+      "gridPos": { "h": 6, "w": 4, "x": 0, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["sum"], "fields": "/^count$/", "values": false }, "colorMode": "value", "graphMode": "area", "textMode": "value" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+          "type": "json", "source": "url", "format": "table",
+          "url": "http://ipecho/stats", "url_options": { "method": "GET" }, "root_selector": "",
+          "columns": [ { "selector": "count", "text": "count", "type": "number" } ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Deploy actual",
+      "gridPos": { "h": 6, "w": 8, "x": 4, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+      "options": { "showHeader": true },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+          "type": "json", "source": "url", "format": "table",
+          "url": "http://ipecho/version", "url_options": { "method": "GET" }, "root_selector": "",
+          "columns": [
+            { "selector": "version", "text": "version", "type": "string" },
+            { "selector": "git_sha", "text": "git_sha", "type": "string" },
+            { "selector": "build_time", "text": "build_time", "type": "string" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "CI/CD — últimos runs (GitHub Actions)",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+      "options": { "showHeader": true },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "conclusion" }, "properties": [ { "id": "custom.cellOptions", "value": { "type": "color-background" } }, { "id": "mappings", "value": [ { "type": "value", "options": { "success": { "color": "green", "index": 0 }, "failure": { "color": "red", "index": 1 } } } ] } ] },
+          { "matcher": { "id": "byName", "options": "url" }, "properties": [ { "id": "custom.width", "value": 90 } ] }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+          "type": "json", "source": "url", "format": "table",
+          "url": "https://api.github.com/repos/pereyra-carlos/devops-lab/actions/runs?per_page=5",
+          "url_options": { "method": "GET" },
+          "root_selector": "workflow_runs",
+          "columns": [
+            { "selector": "run_number", "text": "run", "type": "number" },
+            { "selector": "head_branch", "text": "branch", "type": "string" },
+            { "selector": "event", "text": "event", "type": "string" },
+            { "selector": "status", "text": "status", "type": "string" },
+            { "selector": "conclusion", "text": "conclusion", "type": "string" },
+            { "selector": "created_at", "text": "created_at", "type": "timestamp" },
+            { "selector": "html_url", "text": "url", "type": "string" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "geomap",
+      "title": "IPs geolocalizadas",
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+      "options": {
+        "view": { "id": "zero", "lat": 10, "lon": 0, "zoom": 1.5 },
+        "basemap": { "type": "default", "name": "Basemap" },
+        "controls": { "showZoom": true, "mouseWheelZoom": true, "showAttribution": true },
+        "tooltip": { "mode": "details" },
+        "layers": [
+          {
+            "type": "markers",
+            "name": "IPs",
+            "location": { "mode": "coords", "latitude": "lat", "longitude": "lon" },
+            "config": {
+              "style": {
+                "size": { "field": "count", "fixed": 5, "min": 4, "max": 30 },
+                "color": { "fixed": "orange" },
+                "opacity": 0.7,
+                "symbol": { "mode": "fixed", "fixed": "img/icons/marker/circle.svg" }
+              },
+              "showLegend": true
+            },
+            "tooltip": true
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+          "type": "json", "source": "url", "format": "table",
+          "url": "http://ipecho/stats", "url_options": { "method": "GET" }, "root_selector": "",
+          "columns": [
+            { "selector": "lat", "text": "lat", "type": "number" },
+            { "selector": "lon", "text": "lon", "type": "number" },
+            { "selector": "count", "text": "count", "type": "number" },
+            { "selector": "country", "text": "country", "type": "string" },
+            { "selector": "city", "text": "city", "type": "string" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Log de IPs (últimas 100)",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 20 },
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+      "options": { "showHeader": true },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "ts" }, "properties": [{ "id": "unit", "value": "dateTimeAsIso" }, { "id": "custom.width", "value": 200 }] }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
+          "type": "json", "source": "url", "format": "table",
+          "url": "http://ipecho/log", "url_options": { "method": "GET" }, "root_selector": "",
+          "columns": [
+            { "selector": "ts", "text": "ts", "type": "timestamp_epoch_s" },
+            { "selector": "ip", "text": "ip", "type": "string" },
+            { "selector": "country", "text": "country", "type": "string" },
+            { "selector": "city", "text": "city", "type": "string" },
+            { "selector": "lat", "text": "lat", "type": "number" },
+            { "selector": "lon", "text": "lon", "type": "number" }
+          ]
+        }
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["lab-devops", "ipecho"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ipecho — mapa de IPs",
+  "uid": "ipecho-map",
+  "version": 2
+}
