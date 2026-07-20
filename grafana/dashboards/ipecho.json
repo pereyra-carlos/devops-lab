@@ -27,7 +27,7 @@
     {
       "id": 4,
       "type": "table",
-      "title": "Deploy actual",
+      "title": "Current deploy",
       "gridPos": { "h": 6, "w": 8, "x": 4, "y": 0 },
       "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
       "options": { "showHeader": true },
@@ -48,7 +48,7 @@
     {
       "id": 5,
       "type": "table",
-      "title": "CI/CD — últimos runs (GitHub Actions)",
+      "title": "CI/CD — latest runs (GitHub Actions)",
       "gridPos": { "h": 6, "w": 12, "x": 12, "y": 0 },
       "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
       "options": { "showHeader": true },
@@ -82,7 +82,7 @@
     {
       "id": 2,
       "type": "geomap",
-      "title": "IPs geolocalizadas",
+      "title": "Geolocated IPs",
       "gridPos": { "h": 14, "w": 24, "x": 0, "y": 6 },
       "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
       "options": {
@@ -127,7 +127,7 @@
     {
       "id": 3,
       "type": "table",
-      "title": "Log de IPs (últimas 100)",
+      "title": "IP log (last 100)",
       "gridPos": { "h": 12, "w": 24, "x": 0, "y": 20 },
       "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "ipecho-json" },
       "options": { "showHeader": true },
@@ -162,7 +162,7 @@
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "ipecho — mapa de IPs",
+  "title": "ipecho — IP map",
   "uid": "ipecho-map",
   "version": 2
 }
