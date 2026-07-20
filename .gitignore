@@ -11,3 +11,5 @@ app/data/
 *.mmdb
 GeoIP.conf
 .env
+
+CLAUDE.md
