@@ -8,6 +8,7 @@ Pensado como lab de práctica DevOps para entrevistas.
 
 Detailed technical write-ups (PDF, English):
 
+- [Infrastructure & Pipeline](docs/00-infrastructure.pdf) — architecture diagrams: the CI/CD flow and the runtime topology (Cloudflare, GitHub, Docker Hub, K3s ingress/deployments/pods)
 - [CI/CD Pipeline](docs/01-cicd-pipeline.pdf) — every pipeline stage, secrets, and the real troubleshooting story
 - [The Python Application](docs/02-python-application.pdf) — endpoints, client-IP resolution, geolocation, metrics
 - [The Helm Chart](docs/03-helm-chart.pdf) — values, security hardening, and the GeoLite2 init container
