@@ -81,6 +81,13 @@ def test_stats_aggregates_points():
     assert points[(-34.9, -56.2)] == 1
 
 
+def test_stats_includes_ips_per_point():
+    main.record("9.9.9.9", "US", "St Louis", 10.0, 20.0)
+    main.record("8.8.8.8", "US", "St Louis", 10.0, 20.0)
+    row = [p for p in client.get("/stats").json() if p["lat"] == 10.0][0]
+    assert "9.9.9.9" in row["ips"] and "8.8.8.8" in row["ips"]
+
+
 def test_log_keeps_recent():
     client.get("/", headers={"X-Forwarded-For": "203.0.113.1"})
     entries = client.get("/log").json()

@@ -12,10 +12,10 @@ try:
 except ImportError:
     geoip2 = None
 
-app = FastAPI(title="ipecho", version="0.4.0")
+app = FastAPI(title="ipecho", version="0.5.0")
 
 BUILD_INFO = {
-    "version": os.getenv("APP_VERSION", "0.4.0"),
+    "version": os.getenv("APP_VERSION", "0.5.0"),
     "git_sha": os.getenv("GIT_SHA", "dev"),
     "build_time": os.getenv("BUILD_TIME", "unknown"),
 }
@@ -88,8 +88,10 @@ def record(ip: str, country: str, city, lat, lon) -> None:
             loc = _locations.get(key)
             if loc:
                 loc["count"] += 1
+                if ip not in loc["ips"]:
+                    loc["ips"] = (loc["ips"] + [ip])[-10:]
             else:
-                _locations[key] = {"lat": lat, "lon": lon, "country": country, "city": city, "count": 1}
+                _locations[key] = {"lat": lat, "lon": lon, "country": country, "city": city, "count": 1, "ips": [ip]}
     requests_total.labels(country=country).inc()
 
 
@@ -137,7 +139,11 @@ async def ready():
 @app.get("/stats")
 async def stats():
     with _lock:
-        return list(_locations.values())
+        return [
+            {"lat": loc["lat"], "lon": loc["lon"], "country": loc["country"], "city": loc["city"],
+             "count": loc["count"], "ips": ", ".join(loc["ips"])}
+            for loc in _locations.values()
+        ]
 
 
 @app.get("/log")

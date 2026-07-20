@@ -119,7 +119,8 @@
             { "selector": "lon", "text": "lon", "type": "number" },
             { "selector": "count", "text": "count", "type": "number" },
             { "selector": "country", "text": "country", "type": "string" },
-            { "selector": "city", "text": "city", "type": "string" }
+            { "selector": "city", "text": "city", "type": "string" },
+            { "selector": "ips", "text": "ips", "type": "string" }
           ]
         }
       ]
