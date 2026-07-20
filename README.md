@@ -125,9 +125,17 @@ make grafana-deploy             # crea secret admin + configmaps + deploy
 
 El dashboard vive versionado en `grafana/dashboards/ipecho.json`, así que es reproducible y publicable (como el lab de artesanías).
 
-### Exponer en devops-lab.pereyra.ar
+### Acceso público (Cloudflare Tunnel)
 
-Cloudflare Tunnel → Ingress de Traefik (host `devops-lab.pereyra.ar`). Al pasar por Cloudflare, la app recibe la IP pública real en `CF-Connecting-IP` y el país en `CF-IPCountry`. Agregar la regla de hostname en la config del tunnel apuntando al ingress del nodo K3s.
+Expuesto vía Cloudflare Tunnel `cf-infra` (proxied, HTTPS):
+
+| URL | Destino |
+|-----|---------|
+| `https://devops-lab.pereyra.ar` | app ipecho (Traefik `:80` → Ingress) |
+| `https://devops-lab.pereyra.ar/myip` | tu IP pública en texto plano |
+| `https://devops-lab-grafana.pereyra.ar` | dashboard Grafana (mapa de IPs) |
+
+Al pasar por Cloudflare, la app recibe la IP real en `CF-Connecting-IP` y el país en `CF-IPCountry`, así que cualquier request entra al mapa con su ubicación real. `cloudflared` preserva el `Host` original → Traefik enruta al Ingress sin config extra. Grafana usa un subdominio de un solo nivel (`devops-lab-grafana`) porque el Universal SSL gratis no cubre sub-subdominios.
 
 ## Limitaciones conocidas
 
