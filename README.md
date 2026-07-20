@@ -4,6 +4,14 @@ Web app mínima que devuelve la **IP de origen del cliente**, con un pipeline CI
 
 Pensado como lab de práctica DevOps para entrevistas.
 
+## Documentation
+
+Detailed technical write-ups (PDF, English):
+
+- [CI/CD Pipeline](docs/01-cicd-pipeline.pdf) — every pipeline stage, secrets, and the real troubleshooting story
+- [The Python Application](docs/02-python-application.pdf) — endpoints, client-IP resolution, geolocation, metrics
+- [The Helm Chart](docs/03-helm-chart.pdf) — values, security hardening, and the GeoLite2 init container
+
 ## App
 
 FastAPI con tres endpoints:
